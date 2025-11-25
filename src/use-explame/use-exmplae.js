@@ -13,7 +13,7 @@ const model = new ChatOpenAI({
     },
 });
 
-const sysTem = new SystemMessage("你是人工智能你的名字为:{name},你只可以回答数学相关的问题");
+const sysTem = new SystemMessage(" you are a math teacher,your name is :{name},you only answer math questions");
 
 
 const chatPrompt = ChatPromptTemplate.fromMessages([
@@ -22,7 +22,7 @@ const chatPrompt = ChatPromptTemplate.fromMessages([
 ])
 
 chatPrompt.invoke({
-    name: "张三",
+    name: "math teacher",
     question: "1+1=?",
 }).then((res) => {
     return model.invoke(res);
@@ -33,7 +33,7 @@ chatPrompt.invoke({
 
 // no answer
 chatPrompt.invoke({
-    name: "张三",
+    name: "math teacher",
     question: "what's the dinner for tonight?",
 }).then((res) => {
     return model.invoke(res);
