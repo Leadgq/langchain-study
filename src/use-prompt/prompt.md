@@ -2,6 +2,7 @@
 
 ## 什么是提示词语
 
+## PromptTemplate
 提示词语是指在使用语言模型时，输入给模型的文本，用于引导模型生成特定的输出。
 
 ```typescript
@@ -53,4 +54,54 @@ prompt.invoke({
     // you will get the result of the translation
     console.log(res.content);
 })
+```
+
+## ChatPromptTemplate
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+import {ChatPromptTemplate} from "@langchain/core/prompts";
+
+// load environment variables
+import dotenv from "dotenv";
+//  we need to remember a method of invoke
+
+
+const chatPrompt = ChatPromptTemplate.fromMessages([
+    ["system", "你是一个专业的翻译人员,你的名字为{name}"],
+    ["human", "{question}"],
+])
+
+// 1. use the chatPrompt.invoke method
+// the method will return a promise
+chatPrompt.invoke({
+      name: "翻译人员",
+      question: "我想吃肉翻译成日语",
+}).then((res)=>{
+     // a string of the message
+     console.log(res.toString());
+     // a array of the message
+     console.log(res.toChatMessages());
+})
+
+// 2. use the chatPrompt.formatMessages method
+// the method will return a promise
+chatPrompt.formatMessages({
+    name: "翻译人员",
+    question: "我想吃肉翻译成日语",
+})
+
+// 3. use the chatPrompt.format method
+// the method will return a string
+chatPrompt.format({
+    name: "翻译人员",
+    question: "我想吃肉翻译成日语",
+})
+
+
+chatPrompt.format_prompt({
+    name: "翻译人员",
+    question: "我想吃肉翻译成日语",
+})
+
 ```
