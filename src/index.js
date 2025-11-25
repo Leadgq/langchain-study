@@ -17,10 +17,19 @@ const model = new ChatOpenAI({
     },
 });
 
-prompt.format({
+// prompt.format({
+//     question: "我想吃肉翻译成日语",
+// }).then((res) => {
+//     return model.invoke(res);
+// }).then((res) => {
+//     console.log(res.content);
+// })
+ 
+prompt.invoke({
     question: "我想吃肉翻译成日语",
 }).then((res) => {
-    return model.invoke(res);
+    console.log(res);
+    return model.invoke(res.value);
 }).then((res) => {
     console.log(res.content);
 })
