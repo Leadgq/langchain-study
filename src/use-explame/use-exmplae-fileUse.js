@@ -104,4 +104,5 @@ async function runCompleteDemo() {
 }
 
 
+runCompleteDemo();
 
