@@ -9,13 +9,15 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 dotenv.config();
 
 
+// 对话模型，用于图片分析和文档处理
 const model = new ChatOpenAI({
     apiKey: process.env.API_KEY,
-    model: "gpt-4o-mini",
+    model: "gpt-4o-mini", // 或者其他对话模型
     configuration: {
         baseURL: process.env.BASE_URL,
     },
 });
+
 
 function getFileBase64() {
     const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
@@ -50,8 +52,6 @@ async function analyzeImage() {
         console.error("图片分析失败:", error);
     }
 }
-
-
 
 function getFileAddress() {
    const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
@@ -89,18 +89,19 @@ async function analyzeDocument() {
     }
 }
 
-// 主函数：执行文件识别
-async function runFileAnalysis() {
-    console.log("开始文件分析...");
 
-    // 分析图片
-    console.log("\n=== 分析图片 ===");
+// 主函数：执行文件识别和图片生成
+async function runCompleteDemo() {
+    console.log("=== LangChain 多模态处理演示 ===");
+
+    // 1. 分析现有图片
+    console.log("\n=== 1. 分析现有图片 ===");
     await analyzeImage();
 
-    // 分析文档
-    console.log("\n=== 分析文档 ===");
+    // 2. 分析文档
+    console.log("\n=== 2. 分析文档 ===");
     await analyzeDocument();
 }
 
-// 执行分析
-runFileAnalysis();
+
+
