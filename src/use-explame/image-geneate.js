@@ -166,15 +166,6 @@ async function demonstrateImageGeneration() {
 // 主函数：执行文件识别和图片生成
 async function runCompleteDemo() {
     console.log("=== LangChain 多模态处理演示 ===");
-
-    // 1. 分析现有图片
-    console.log("\n=== 1. 分析现有图片 ===");
-    await analyzeImage();
-
-    // 2. 分析文档
-    console.log("\n=== 2. 分析文档 ===");
-    await analyzeDocument();
-
     // 3. 图片生成演示
     console.log("\n=== 3. AI图片生成演示 ===");
     await demonstrateImageGeneration();
