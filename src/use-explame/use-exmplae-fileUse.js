@@ -1,6 +1,6 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { DocxLoader } from  "@langchain/community/document_loaders/fs/docx";
-
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 import path from "path";
 import url from "url";
 import fs from "fs";
@@ -70,19 +70,13 @@ async function analyzeDocument() {
         if (documents && documents.length > 0) {
             const documentContent = documents[0].pageContent;
 
-            const messages = [
-                new SystemMessage("你是一个文档分析人员，请分析和总结文档内容"),
-                new HumanMessage({
-                    content: [
-                        {
-                            type: "text",
-                            text: `请分析以下文档内容：\n\n${documentContent}`
-                        }
-                    ]
-                })
-            ];
+            const chatPrompt = ChatPromptTemplate.fromMessages([
+                ["system", "你是一个文档分析人员，请分析和总结文档内容"],
+                ["human", `请分析以下文档内容：\n\n{documentContent}`],
+            ])
 
-            const response = await model.invoke(messages);
+            const prompt = await chatPrompt.invoke({ documentContent });
+            const response = await model.invoke(prompt);
             console.log("文档分析结果:", response.content);
             return response.content;
         } else {
