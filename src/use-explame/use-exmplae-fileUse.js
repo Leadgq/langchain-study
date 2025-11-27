@@ -1,5 +1,5 @@
 import { ChatOpenAI } from "@langchain/openai";
-import { DocxLoader } from  "@langchain/community/document_loaders/fs/docx";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import path from "path";
 import url from "url";
@@ -54,7 +54,7 @@ async function analyzeImage() {
 }
 
 function getFileAddress() {
-   const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
+    const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
     // 读取文件内容 - 注意：文件应该是真正的 .docx 格式
     const joinPath = path.join(__dirname, "../assets/question2.docx");
     return joinPath
