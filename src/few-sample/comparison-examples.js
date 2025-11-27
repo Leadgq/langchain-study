@@ -6,18 +6,6 @@ import {
 } from "@langchain/core/prompts";
 import { getModel } from "../model/index.js";
 
-  // 示例数据
-  const examples = [
-    {
-      input: "我想学习编程",
-      output: "学习编程是个很好的选择！建议你从Python开始，因为它语法简单，适合初学者。",
-    },
-    {
-      input: "如何提高英语水平？",
-      output: "提高英语水平需要多方面努力：多读、多听、多说、多写。每天坚持30分钟的学习效果最好。",
-    },
-  ];
-
 // this's the example of fewShotStringPromptExample
 function fewShotStringPromptExample() {
   console.log("====== FewShotPromptTemplate vs FewShotChatMessagePromptTemplate 对比 ======");
@@ -27,7 +15,16 @@ function fewShotStringPromptExample() {
   console.log("\n📝 方法1: FewShotPromptTemplate (字符串格式)");
 
   const fewShotStringPrompt = new FewShotPromptTemplate({
-    examples: examples,
+    examples: [
+    {
+      input: "我想学习编程",
+      output: "学习编程是个很好的选择！建议你从Python开始，因为它语法简单，适合初学者。",
+    },
+    {
+      input: "如何提高英语水平？",
+      output: "提高英语水平需要多方面努力：多读、多听、多说、多写。每天坚持30分钟的学习效果最好。",
+    },
+    ],
     examplePrompt: new PromptTemplate({
       inputVariables: ["input", "output"],
       template: "用户问题：{input}\nAI回答：{output}",
