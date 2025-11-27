@@ -33,8 +33,12 @@ chatPrompt.invoke({
     name: "翻译人员",
     question: "我想吃肉翻译成日语",
 }).then((res) => {
-  console.log(res.toString());
-  console.log(res.toChatMessages());
+//   console.log(res.toString());
+//   console.log(res.toChatMessages());
+    return model.invoke(res)
+}).then((res) => {
+    // receive the AIMessage
+    console.log(res);
 })
 
 // // 方式3 格式化消息数组
