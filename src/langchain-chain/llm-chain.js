@@ -7,6 +7,7 @@ const model = getModel();
 const stringOutputParser = new StringOutputParser();
 
 async function runChain(topic) {
+    // 注意点：每个assign中都是并行的 不相互影响
     const templateChatPromptTip = ChatPromptTemplate.fromTemplate("详细写一篇关于 {topic} 的文章。");
     const templateChatPromptSummary = ChatPromptTemplate.fromTemplate("请总结一下下面的文章: {text}");
 
