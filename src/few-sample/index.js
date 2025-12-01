@@ -35,13 +35,10 @@ const shortTemplate = new FewShotPromptTemplate({
   inputVariables:['question']
 })
 
-// 对于这种模板产生的最好使用format方法
+
 shortTemplate.invoke({ question: "中国首都是哪里？" }).then((res) => {
   const model = getModel();
   model.invoke(res).then((res) => {
     console.log(res.content);
   });   
 });
-
-
-// 多轮对话使用fromMessages
