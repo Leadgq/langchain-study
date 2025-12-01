@@ -25,6 +25,7 @@ async function runChain(topic) {
     return await chain.invoke({ topic });
 }
 
+// 注意:目前这种做法已经过时了
 const result = await runChain("人工智能的未来");
   console.log("=== 文档处理结果 ===");
   console.log("\n文章:", result.article);
