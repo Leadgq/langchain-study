@@ -59,7 +59,7 @@ async function answerAndSummary(question) {
     return result;
 }
 
-const question = "LangChain 是什么？createStuffDocumentsChain 有什么作用？";
+const question = "LangChain 是什么？createStuffDocumentsChain 有什么作用？牛肉好吃吗?";
 
 const result = await answerAndSummary(question);
 console.log(result);
