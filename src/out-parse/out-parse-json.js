@@ -31,4 +31,22 @@ async function generatePersonInfo(description) {
     console.log("Generated Person Info:", result);
 }
 
-generatePersonInfo('什么是ai?');
+
+async function streamWithJsonParser(description) {
+    const rawStream = await prompt.pipe(model).stream({ description });
+    
+    let bufferedJson = '';
+    
+    for await (const chunk of rawStream) {
+        const content = chunk.content;
+        // process.stdout.write(content); // 实时显示
+        bufferedJson += content;
+    }
+    
+    // 如果是前后端交互，需要返回bufferedJson 而不是解析之后的，这么做的目的是为了我们好看结果
+     return await parser.invoke(bufferedJson);
+}
+
+streamWithJsonParser('什么是ai?').then((res) => {
+    console.log(res);
+});
