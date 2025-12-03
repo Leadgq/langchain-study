@@ -4,7 +4,6 @@ import fs from "fs";
 import { PromptTemplate } from "@langchain/core/prompts";
 import path from "path";
 import { fileURLToPath } from "url";
-import { JsonMarkdownStructuredOutputParser } from "@langchain/classic/output_parsers"
 import { getModel } from "../model/index.js";
 
 const model = getModel();
@@ -31,7 +30,7 @@ const combineDocsChain = await createStuffDocumentsChain({
     llm: model,
     prompt: PromptTemplate.fromTemplate(
         `Answer the question based on this context: {context}\n\nQuestion: {input}`
-    ),
+    )
 });
 
 console.log(combineDocsChain);
