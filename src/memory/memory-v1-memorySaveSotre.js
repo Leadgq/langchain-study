@@ -4,7 +4,7 @@ import readline from 'readline';
 
 import { getModel } from "../model/index.js";
 import z from "zod";
-const mainModel = getModel("gpt-4o");
+const mainModel = getModel();
 const summaryModel = getModel();
 
 
