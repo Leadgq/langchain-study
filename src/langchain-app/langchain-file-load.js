@@ -1,7 +1,7 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { Document } from "@langchain/classic/document"
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { PPTXLoader } from "@langchain/community/document_loaders/fs/pptx"
+import { TextLoader } from "@langchain/classic/document_loaders/fs/text"
 import fs from "fs";
 import path from "path";
 
@@ -16,17 +16,16 @@ class fileReader {
             case ".docx":
                 return await this.#readDocx();
             case ".text":
-                return new Document({
-                    pageContent: fs.readFileSync(this.file, "utf-8"),
-                    metadata: {
-                        source: this.file,
-                    },
-                });
+                return await this.#readText();
             case ".pptx":
                 return await this.#readPPTX();
             default:
                 return fs.readFileSync(this.file, "utf-8");
         }
+    }
+    async #readText() {
+        const loader = new TextLoader(this.file);
+        return await loader.load();
     }
     async #readPdf() {
         const loader = new PDFLoader(this.file);
