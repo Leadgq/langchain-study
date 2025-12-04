@@ -84,13 +84,11 @@ async function saveVectorStore(vectorStore) {
             docstore: vectorStore.docstore       // 文档存储
         };
 
-        // 确保目录存在
         const dir = path.dirname(vectorStorePath);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
 
-        // 写入文件
         fs.writeFileSync(vectorStorePath, JSON.stringify(indexData, null, 2));
         console.log(`✓ 向量存储已保存到: ${vectorStorePath}`);
     } catch (error) {
