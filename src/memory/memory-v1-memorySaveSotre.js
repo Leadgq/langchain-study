@@ -61,7 +61,7 @@ const getOrderList = tool(
 
             const orderSummary = allOrders.map(item => {
                 const order = item.value;
-                return `客户${order.customer} - ${order.items.join("、")} - ${order.total}元`;
+                return `客户${order.customer} - ${order.items.join("、")} - ${order.total}元-订单状态${order.status}`;
             }).join("\n");
 
             return `订单列表(共${allOrders.length}个):\n${orderSummary}`;
