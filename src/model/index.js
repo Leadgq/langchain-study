@@ -1,12 +1,12 @@
-import {ChatOpenAI} from "@langchain/openai";
-import {StructuredOutputParser} from "@langchain/core/output_parsers"
-import {createAgent, createMiddleware, summarizationMiddleware, trimMessages} from "langchain"
-import {z} from "zod"
+import { ChatOpenAI } from "@langchain/openai";
+import { StructuredOutputParser } from "@langchain/core/output_parsers"
+import { createAgent, createMiddleware, summarizationMiddleware, trimMessages } from "langchain"
+import { z } from "zod"
 import dotenv from "dotenv";
 import readline from "readline";
 import path from "path";
-import {fileURLToPath} from "url";
-import {MemorySaver} from "@langchain/langgraph";
+import { fileURLToPath } from "url";
+import { MemorySaver } from "@langchain/langgraph";
 
 dotenv.config();
 
@@ -45,21 +45,21 @@ export function readlineChat() {
     });
 }
 
-export function createAgentFn({
-                                  tools,
-                                  model,
-                                  summaryModel,
-                                  responseFormat,
-                                  middleWare = []
-                              }) {
-
+export function createAgentFn(option = {}) {
+    const {
+        tools = [],
+        modelName,
+        summaryModelName,
+        responseFormat,
+        middleWare = []
+    } = option;
     if (responseFormat && typeof responseFormat !== "object") {
         throw new Error('please use  object to format responseFormat')
     }
     const checkpointer = new MemorySaver();
     const agent = createAgent({
-        model: model || getModel(),
-        tools,
+        model: getModel(modelName),
+        tools: tools,
         checkpointer,
         responseFormat: responseFormat || z.object({
             question: z.string().describe("The customer's question"),
@@ -68,9 +68,9 @@ export function createAgentFn({
         systemPrompt: `你是一个靠谱的人工智能助手可以回答用户的问题`,
         middleware: [
             summarizationMiddleware({
-                model: summaryModel || getModel(),
-                trigger: {tokens: 4000},
-                keep: {messages: 25},
+                model: getModel(summaryModelName),
+                trigger: { tokens: 4000 },
+                keep: { messages: 25 },
             }),
             trimMessageHistory,
             ...middleWare
@@ -90,6 +90,6 @@ const trimMessageHistory = createMiddleware({
             endOn: ["human", "tool"],
             tokenCounter: (msgs) => msgs.length,  // 自定义 token 计数器
         });
-        return {messages: trimmed};
+        return { messages: trimmed };
     },
 });
