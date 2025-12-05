@@ -1,6 +1,6 @@
-import { createAgent, summarizationMiddleware, tool, trimMessages } from "langchain"
+import { createAgent, summarizationMiddleware, tool, trimMessages,createMiddleware } from "langchain"
 import { MemorySaver, InMemoryStore } from "@langchain/langgraph"
-import readline from 'readline';
+// import readline from 'readline';
 
 import { getModel } from "../model/index.js";
 import z from "zod";
@@ -141,6 +141,22 @@ const updateOrderStatus = tool(
 }
 )
 
+const trimMessageHistory = createMiddleware({
+    name: "TrimMessages",
+    beforeModel: async (state) => {
+        // 在模型调用前修剪消息
+        const trimmed = await trimMessages(state.messages, {
+            strategy: "last",
+            maxTokens: 2000,
+            startOn: "human",
+            endOn: ["human", "tool"],
+            tokenCounter: (msgs) => msgs.length,  // 自定义 token 计数器
+        });
+        return { messages: trimmed };
+    },
+});
+
+
 const agent = createAgent({
     model: mainModel,
     tools: [createOrder, getOrderList, getOrderByName, updateOrderStatus],
@@ -162,53 +178,42 @@ const agent = createAgent({
             model: summaryModel,
             trigger: { tokens: 1000 },
             keep: { messages: 25 },
-        })
-    ],
-    preModelHook: async (state) => {
-        return {
-            // 对消息进行裁剪，保留最后2000个token
-            messages: await trimMessages(state.messages, {
-                strategy: "last",
-                maxTokens: 2000,
-                startOn: "human",
-                endOn: ["human", "tool"],
-                tokenCounter: (msgs) => msgs.length,
-            }),
-        };
-    },
+        }),
+        trimMessageHistory
+    ]
 })
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+// const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+// });
 
-function askQuestion(query) {
-    return new Promise((resolve) => {
-        rl.question(query, resolve);
-    });
-}
+// function askQuestion(query) {
+//     return new Promise((resolve) => {
+//         rl.question(query, resolve);
+//     });
+// }
 
-async function runChat() {
-    console.log("订单助手已启动。输入 'exit' 退出。\n");
+// async function runChat() {
+//     console.log("订单助手已启动。输入 'exit' 退出。\n");
 
-    while (true) {
-        const userInput = await askQuestion("客户: ");
+//     while (true) {
+//         const userInput = await askQuestion("客户: ");
 
-        if (userInput.toLowerCase() === "exit") {
-            console.log("再见！");
-            rl.close();
-            break;
-        }
+//         if (userInput.toLowerCase() === "exit") {
+//             console.log("再见！");
+//             rl.close();
+//             break;
+//         }
 
-        const result = await agent.invoke(
-            { messages: [{ role: "user", content: userInput }] },
-            { configurable: { thread_id: userId } }
-        );
+//         const result = await agent.invoke(
+//             { messages: [{ role: "user", content: userInput }] },
+//             { configurable: { thread_id: userId } }
+//         );
 
-        const lastMessage = result.messages[result.messages.length - 1];
-        console.log(`助手: ${lastMessage.content}\n`);
-    }
-}
+//         const lastMessage = result.messages[result.messages.length - 1];
+//         console.log(`助手: ${lastMessage.content}\n`);
+//     }
+// }
 
-runChat();
+// runChat();

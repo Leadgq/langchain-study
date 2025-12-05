@@ -1,0 +1,8 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/simple-agent.js:graph"
+  },
+  "env": ".env",
+  "version": "^0.1.0"
+}
