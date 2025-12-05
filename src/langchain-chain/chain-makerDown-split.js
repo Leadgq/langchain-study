@@ -5,7 +5,7 @@ import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import path from "path";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { getModel, getLocalFilePath } from "../model/index.js";
-import { createAgent, summarizationMiddleware, tool, trimMessages } from "langchain"
+import { createAgent, summarizationMiddleware, tool, trimMessages,createMiddleware } from "langchain"
 import { MemorySaver } from "@langchain/langgraph"
 import dotenv from "dotenv";
 dotenv.config();
@@ -139,6 +139,22 @@ const queryMarkdown = tool(async ({ question }) => {
     })
 });
 
+const trimMessageHistory = createMiddleware({
+    name: "TrimMessages",
+    beforeModel: async (state) => {
+        // 在模型调用前修剪消息
+        const trimmed = await trimMessages(state.messages, {
+            strategy: "last",
+            maxTokens: 2000,
+            startOn: "human",
+            endOn: ["human", "tool"],
+            tokenCounter: (msgs) => msgs.length,  // 自定义 token 计数器
+        });
+        return { messages: trimmed };
+    },
+});
+
+
 const agent = createAgent({
     model: mainModel,
     tools: [queryMarkdown],
@@ -153,19 +169,9 @@ const agent = createAgent({
             model: summaryModel,
             trigger: { tokens: 1000 },
             keep: { messages: 25 },
-        })
+        }),
+        trimMessageHistory
     ],
-    preModelHook: async (state) => {
-        return {
-            messages: await trimMessages(state.messages, {
-                strategy: "last",
-                maxTokens: 2000,
-                startOn: "human",
-                endOn: ["human", "tool"],
-                tokenCounter: (msgs) => msgs.length,
-            }),
-        };
-    },
 });
 
 const userId = "user-123";

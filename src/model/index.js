@@ -45,6 +45,21 @@ export function readlineChat() {
     });
 }
 
+const trimMessageHistory = createMiddleware({
+    name: "TrimMessages",
+    beforeModel: async (state) => {
+        // 在模型调用前修剪消息
+        const trimmed = await trimMessages(state.messages, {
+            strategy: "last",
+            maxTokens: 2000,
+            startOn: "human",
+            endOn: ["human", "tool"],
+            tokenCounter: (msgs) => msgs.length,  // 自定义 token 计数器
+        });
+        return { messages: trimmed };
+    },
+});
+
 export function createAgentFn(option = {}) {
     const {
         tools = [],
@@ -78,18 +93,3 @@ export function createAgentFn(option = {}) {
     })
     return agent;
 }
-
-const trimMessageHistory = createMiddleware({
-    name: "TrimMessages",
-    beforeModel: async (state) => {
-        // 在模型调用前修剪消息
-        const trimmed = await trimMessages(state.messages, {
-            strategy: "last",
-            maxTokens: 2000,
-            startOn: "human",
-            endOn: ["human", "tool"],
-            tokenCounter: (msgs) => msgs.length,  // 自定义 token 计数器
-        });
-        return { messages: trimmed };
-    },
-});
