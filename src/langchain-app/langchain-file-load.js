@@ -1,9 +1,9 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
-import { PPTXLoader } from "@langchain/community/document_loaders/fs/pptx"
 import { TextLoader } from "@langchain/classic/document_loaders/fs/text"
 import fs from "fs";
 import path from "path";
+import { getLocalFilePath } from "../model/index.js";
 
 class fileReader {
     constructor(file) {
@@ -17,8 +17,6 @@ class fileReader {
                 return await this.#readDocx();
             case ".text":
                 return await this.#readText();
-            case ".pptx":
-                return await this.#readPPTX();
             default:
                 return fs.readFileSync(this.file, "utf-8");
         }
@@ -35,8 +33,9 @@ class fileReader {
         const loader = new DocxLoader(this.file);
         return await loader.load();
     }
-    async #readPPTX() {
-        const loader = new PPTXLoader(this.file);
-        return await loader.load();
-    }
 }
+
+
+const japanseText = getLocalFilePath("../assets/Japanese.text")
+
+console.log(japanseText);
