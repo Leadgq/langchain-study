@@ -3,7 +3,17 @@
     "allow": [
       "Bash(node:*)",
       "Bash(dir:*)",
-      "Bash(pnpm ls:*)"
+      "Bash(pnpm ls:*)",
+      "Bash(cat:*)",
+      "Bash(langchain dev:*)",
+      "Bash(npx langgraph dev:*)",
+      "Bash(pnpm exec langgraph dev:*)",
+      "Bash(npx @langchain/cli --version:*)",
+      "Bash(npm search:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm install:*)",
+      "Bash(npx @langchain/langgraph-cli dev:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

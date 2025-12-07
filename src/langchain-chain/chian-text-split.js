@@ -1,5 +1,12 @@
 import { Document } from "@langchain/core/documents";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters"
+import {
+    RecursiveCharacterTextSplitter,
+    TokenTextSplitter,
+    CharacterTextSplitter,
+    SupportedTextSplitterLanguages,
+    LatexTextSplitter,
+    MarkdownTextSplitter
+} from "@langchain/textsplitters"
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { getModel } from "../model/index.js";
@@ -132,23 +139,23 @@ class textSplitter {
 
 // 演示使用
 async function demo() {
-  const translator = new textSplitter();
-  
-  // 示例日语文档（混合了简单句子和复杂段落）
-  const japaneseDocument =  getJapaneseText();
-  try {
-    console.log("📖 原始日语文档：");
-    console.log(japaneseDocument);
-    console.log("\n" + "=".repeat(50) + "\n");
-    
-    const translated = await translator.translateDocument(japaneseDocument);
-    
-    console.log("\n🎉 最终翻译结果：");
-    console.log(translated);
-    
-  } catch (error) {
-    console.error("翻译过程中出错：", error);
-  }
+    const translator = new textSplitter();
+
+    // 示例日语文档（混合了简单句子和复杂段落）
+    const japaneseDocument = getJapaneseText();
+    try {
+        console.log("📖 原始日语文档：");
+        console.log(japaneseDocument);
+        console.log("\n" + "=".repeat(50) + "\n");
+
+        const translated = await translator.translateDocument(japaneseDocument);
+
+        console.log("\n🎉 最终翻译结果：");
+        console.log(translated);
+
+    } catch (error) {
+        console.error("翻译过程中出错：", error);
+    }
 }
 
 demo();
