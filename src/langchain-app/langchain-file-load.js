@@ -3,7 +3,6 @@ import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { TextLoader } from "@langchain/classic/document_loaders/fs/text"
 import fs from "fs";
 import path from "path";
-import { getLocalFilePath } from "../model/index.js";
 
 class fileReader {
     constructor(file) {
@@ -34,8 +33,3 @@ class fileReader {
         return await loader.load();
     }
 }
-
-
-const japanseText = getLocalFilePath("../assets/Japanese.text")
-
-console.log(japanseText);
