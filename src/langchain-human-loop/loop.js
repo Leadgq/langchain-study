@@ -6,7 +6,7 @@ import { Command } from "@langchain/langgraph";
 
 const sendEmailTool = tool(
     async ({ to, email, subject, body }) => {
-        return `Email sent successfully to ${to} with subject ${subject} and body ${body}`
+        return `Email sent successfully to ${to} with subject ${subject} and email ${email}  and body ${body}`
     },
     {
         name: "sendEmail",
