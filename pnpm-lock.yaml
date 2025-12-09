@@ -47,6 +47,9 @@ importers:
       mammoth:
         specifier: ^1.11.0
         version: 1.11.0
+      nodemailer:
+        specifier: ^7.0.11
+        version: 7.0.11
       typeorm:
         specifier: ^0.3.27
         version: 0.3.27(reflect-metadata@0.2.2)(sqlite3@5.1.7)
@@ -1626,6 +1629,10 @@ packages:
     engines: {node: '>= 10.12.0'}
     hasBin: true
 
+  nodemailer@7.0.11:
+    resolution: {integrity: sha512-gnXhNRE0FNhD7wPSCGhdNh46Hs6nm+uTyg+Kq0cZukNQiYdnCsoQjodNP9BQVG9XrcK/v6/MgpAPBUFyzh9pvw==}
+    engines: {node: '>=6.0.0'}
+
   nopt@5.0.0:
     resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
     engines: {node: '>=6'}
@@ -3168,7 +3175,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.13.2)
+      retry-axios: 2.6.0(axios@1.13.2(debug@4.4.3))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -3500,6 +3507,8 @@ snapshots:
       - supports-color
     optional: true
 
+  nodemailer@7.0.11: {}
+
   nopt@5.0.0:
     dependencies:
       abbrev: 1.1.1
@@ -3704,7 +3713,7 @@ snapshots:
 
   requires-port@1.0.0: {}
 
-  retry-axios@2.6.0(axios@1.13.2):
+  retry-axios@2.6.0(axios@1.13.2(debug@4.4.3)):
     dependencies:
       axios: 1.13.2(debug@4.4.3)
 

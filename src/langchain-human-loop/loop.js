@@ -1,12 +1,44 @@
-
 import { tool, humanInTheLoopMiddleware } from "langchain"
 import { createAgentFn } from "../model/index.js"
 import z from "zod"
 import { Command } from "@langchain/langgraph";
+// mailer.js
+import nodemailer from 'nodemailer';
+
+/**
+ * 发送邮件（适用于QQ邮箱）
+ * @param {Object} options - 邮件参数
+ * @param {string} options.to - 收件人邮箱
+ * @param {string} options.subject - 邮件主题
+ * @param {string} options.text - 邮件内容 (纯文本)
+ * @param {string} [options.html] - 邮件内容 (HTML，可选)
+ * @returns {Promise<Object>} - 邮件发送结果
+ */
+export async function sendMail({ to, subject, text, html }) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.qq.com',
+    port: 465,
+    secure: true, // true for 465, false for 587
+    auth: {
+      user: '2643336540@qq.com',     // 你的QQ邮箱
+      pass: 'ffqtjrqnsgnzecfj',            // QQ邮箱设置里生成的授权码，不是密码
+    },
+  });
+
+  const mailOptions = {
+    from: '火狐<2643336540@qq.com>', // 发件人
+    to,
+    subject,
+    text,
+    html,
+  };
+
+  return transporter.sendMail(mailOptions);
+}
 
 const sendEmailTool = tool(
     async ({ to, subject, body }) => {
-        console.log('调用工具sendEmail参数为:', `to:${to}, subject:${subject}, body:${body}`);
+        await sendMail({ to, subject, text: body });
         return `Email sent successfully to ${to} with subject ${subject} and body ${body}`
     },
     {
