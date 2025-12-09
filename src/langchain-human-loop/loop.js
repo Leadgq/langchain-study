@@ -6,6 +6,7 @@ import { Command } from "@langchain/langgraph";
 
 const sendEmailTool = tool(
     async ({ to, subject, body }) => {
+        console.log('调用工具sendEmail参数为:', `to:${to}, subject:${subject}, body:${body}`);
         return `Email sent successfully to ${to} with subject ${subject} and body ${body}`
     },
     {
@@ -24,10 +25,7 @@ const agent = createAgentFn({
     middleWare: [
         humanInTheLoopMiddleware({
             interruptOn: {
-                sendEmail: {
-                    allowedDecisions: ["approve", "edit", "reject"],
-                    description: "📧 Email requires approval",
-                }
+                sendEmail: true
             }
         })
     ]
@@ -50,7 +48,7 @@ async function runAgentWithApprovals() {
         config
     );
 
-
+    console.log("\n有中断吗?", result.__interrupt__ ? "✅ 是" : "❌ 否");
     // 检查是否有中断
     if (result.__interrupt__) {
 
@@ -59,56 +57,50 @@ async function runAgentWithApprovals() {
 
         const actionRequests = interrupt.actionRequests || [];
 
-        actionRequests.forEach((action, index) => {
-            console.log(`${index + 1}. ${action.name}`);
-            console.log(`   参数: ${JSON.stringify(action.args)}`);
-        });
+
+        if (!interrupt || !interrupt.actionRequests) {
+            console.log("没有找到 actionRequests");
+            return;
+        }
+
+        console.log("待批准的操作:", actionRequests);
+
 
         // ✅ 为每个操作创建一个决策（使用 for 循环最清晰）
         const decisions = [];
 
         for (const action of actionRequests) {
             if (action.name === "sendEmail") {
-                // 直接批准
-                // decisions.push({ type: "approve" });
-                // console.log(`\n✅ 批准执行`)
-
-                //   decisions.push({
-                //     type: "reject",
-                //     message: "请改为发送给 john@example.com，主题改为'项目报告'，内容改为'请查看附件中的报告...'",
-                // });
 
                 decisions.push({
-                type: "edit",
-                editedAction: {
-                    name: "sendEmail",  // Keep original tool name
-                    args: {
-                        to: "john@example.com",
-                        subject: "项目报告编辑",
-                        body: "内容被更改成文章的编辑...",
+                    type: "edit",
+                    editedAction: {
+                        name: "sendEmail",  // Keep original tool name
+                        args: {
+                            ...action.args,
+                            to: "john@example.com",
+                        },
                     },
-                },
-            });
-                
-
-                // 或者拒绝
-                // decisions.push({
-                //     type: "reject",
-                //     message: "邮件内容需要修改，收件人邮箱地址为264333654@qq.com",
-                // });
+                });
             }
         }
-
         console.log("用户决策:", decisions);
+        try {
+            const resumedResult = await agent.invoke(
+                new Command({
+                    resume: { decisions },  // ✅ 必须是这个格式
+                }),
+                config  // ✅ 必须是同一个 thread_id
+            );
 
-        const resumedResult = await agent.invoke(
-            new Command({
-                resume: { decisions },
-            }),
-            config
-        );
-        const lastMessage = resumedResult.messages[resumedResult.messages.length - 1];
-     console.log(JSON.stringify(lastMessage, null, 2));
+            const lastMessage = resumedResult.messages[resumedResult.messages.length - 1];
+            console.log("最后的消息:", lastMessage);
+
+            return resumedResult;
+        } catch (error) {
+            console.error("恢复执行失败:", error);
+            throw error;
+        }
     }
 }
 
