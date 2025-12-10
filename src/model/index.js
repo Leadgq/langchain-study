@@ -98,7 +98,7 @@ export class readChat {
         this.isClosed = false;
     }
 
-    _getReadline() {
+    #getReadline() {
         if (!this.rl || this.isClosed) {
             this.rl = readline.createInterface({
                 input: process.stdin,
@@ -111,7 +111,7 @@ export class readChat {
 
     readlineChatOnce(query) {
         return new Promise((resolve) => {
-            const rl = this._getReadline();
+            const rl = this.#getReadline();
             rl.question(query, answer => {
                 rl.close();
                 this.isClosed = true;
@@ -122,7 +122,7 @@ export class readChat {
 
     #readlineChatLoop(query) {
         return new Promise((resolve) => {
-            const rl = this._getReadline();
+            const rl = this.#getReadline();
             rl.question(query, answer => {
                 resolve(answer);
             });
