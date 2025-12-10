@@ -99,6 +99,7 @@ async function runAgentWithApprovals() {
                         args: {
                             ...action.args,
                             to: "gq19960624@2925.com",
+                            body:'这是一篇被更改过的文章，hi！！！！'
                         },
                     },
                 });
@@ -112,6 +113,7 @@ async function runAgentWithApprovals() {
                 }),
                 config  // ✅ 必须是同一个 thread_id
             );
+            console.log("智能体执行任务完毕...");
         } catch (error) {
             console.error("恢复执行失败:", error);
             throw error;
