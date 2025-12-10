@@ -19,7 +19,7 @@ export async function sendMail({ to, subject, text, html }) {
   });
 
   const mailOptions = {
-    from: '火狐<2643336540@qq.com>', // 发件人
+    from: `火狐<${process.env.QQ_EMAIL}>`, // 发件人
     to,
     subject,
     text,
