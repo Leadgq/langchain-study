@@ -132,8 +132,10 @@ export class readChat {
     async chatLoop(message) {
         let lastAnswer = "";
         while (true) {
-            const answer = await this.#readlineChatLoop(message+'您可以输入（quit 退出）：');
-            if (answer.trim().toLowerCase() === "quit") {
+            const answer = await this.#readlineChatLoop(message+'您可以输入（quit/exit/stop/q 退出）：');
+            const answerTrim = answer.trim().toLowerCase()
+            const exitProgram = answerTrim.includes("quit") || answerTrim.includes("exit") || answerTrim.includes("stop") || answerTrim.includes("q")
+            if (exitProgram) {
                 break;
             }
             lastAnswer = answer;
