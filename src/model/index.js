@@ -33,17 +33,6 @@ export function formateModelMessageToObject(obj) {
     return [parser, formatInstructions,]
 }
 
-export function readlineChat() {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    return new Promise((resolve) => {
-        rl.question(query, resolve);
-    });
-}
-
 const trimMessageHistory = createMiddleware({
     name: "TrimMessages",
     beforeModel: async (state) => {
@@ -64,6 +53,7 @@ export function createAgentFn(option = {}) {
         tools = [],
         modelName,
         summaryModelName,
+        systemPrompt,
         responseFormat,
         middleWare = []
     } = option;
@@ -87,7 +77,7 @@ export function createAgentFn(option = {}) {
             question: z.string().describe("The customer's question"),
             answer: z.string().describe("The assistant's answer"),
         }),
-        systemPrompt: `你是一个靠谱的人工智能助手可以回答用户的问题`,
+        systemPrompt: systemPrompt || `你是一个靠谱的人工智能助手可以回答用户的问题`,
         middleware: [
             summarizationMiddleware({
                 model: getModel(summaryModelName),
@@ -99,4 +89,58 @@ export function createAgentFn(option = {}) {
         ]
     })
     return agent;
+}
+
+
+export class readChat {
+    constructor() {
+        this.rl = null;
+        this.isClosed = false;
+    }
+
+    _getReadline() {
+        if (!this.rl || this.isClosed) {
+            this.rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+            this.isClosed = false;
+        }
+        return this.rl;
+    }
+
+    readlineChatOnce(query) {
+        return new Promise((resolve) => {
+            const rl = this._getReadline();
+            rl.question(query, answer => {
+                rl.close();
+                this.isClosed = true;
+                resolve(answer);
+            });
+        });
+    }
+
+    #readlineChatLoop(query) {
+        return new Promise((resolve) => {
+            const rl = this._getReadline();
+            rl.question(query, answer => {
+                resolve(answer);
+            });
+        });
+    }
+
+    async chatLoop(message) {
+        let lastAnswer = "";
+        while (true) {
+            const answer = await this.#readlineChatLoop(message+'您可以输入（quit 退出）：');
+            if (answer.trim().toLowerCase() === "quit") {
+                break;
+            }
+            lastAnswer = answer;
+        }
+        const rl = this._getReadline();
+        rl.close();
+        this.isClosed = true;
+        return lastAnswer;
+    }
 }

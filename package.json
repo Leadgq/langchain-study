@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "node src/index.js",
-    "memory": "node src/memory/memory-v1-memorySaveSotre.js"
+    "memory": "node src/memory/memory-v1-memorySaveSotre.js",
+    "loop": "node src/langchain-human-loop/loop.js"
   },
   "keywords": [],
   "author": "",

@@ -1,5 +1,7 @@
 import { tool, humanInTheLoopMiddleware } from "langchain"
-import { createAgentFn } from "../model/index.js"
+import { StructuredOutputParser } from '@langchain/core/output_parsers';
+import { createAgentFn, getModel, readChat } from "../model/index.js"
+import { PromptTemplate } from "@langchain/core/prompts";
 import z from "zod"
 import { Command } from "@langchain/langgraph";
 import nodemailer from 'nodemailer';
@@ -7,26 +9,29 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const model = getModel()
+const readChatInstance = new readChat()
+
 export async function sendMail({ to, subject, text, html }) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.qq.com',
-    port: 465,
-    secure: true, // true for 465, false for 587
-    auth: {
-      user: process.env.QQ_EMAIL,     // 你的QQ邮箱
-      pass: process.env.QQ_EMAIL_PASSWORD,            // QQ邮箱设置里生成的授权码，不是密码
-    },
-  });
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.qq.com',
+        port: 465,
+        secure: true, // true for 465, false for 587
+        auth: {
+            user: process.env.QQ_EMAIL,     // 你的QQ邮箱
+            pass: process.env.QQ_EMAIL_PASSWORD,            // QQ邮箱设置里生成的授权码，不是密码
+        },
+    });
 
-  const mailOptions = {
-    from: `火狐<${process.env.QQ_EMAIL}>`, // 发件人
-    to,
-    subject,
-    text,
-    html,
-  };
+    const mailOptions = {
+        from: `火狐<${process.env.QQ_EMAIL}>`, // 发件人
+        to,
+        subject,
+        text,
+        html,
+    };
 
-  return transporter.sendMail(mailOptions);
+    return transporter.sendMail(mailOptions);
 }
 
 const sendEmailTool = tool(
@@ -47,12 +52,13 @@ const sendEmailTool = tool(
 
 const agent = createAgentFn({
     tools: [sendEmailTool],
+    systemPrompt: `你是一个靠谱的人工智能助手可以回答用户的问题，你可以使用sendEmail工具发送邮件,当用户成功发送邮件后，请告知结果，如果拒绝发送邮件，请告知用户`,
     middleWare: [
         humanInTheLoopMiddleware({
             interruptOn: {
                 sendEmail: {
-                    allowedDecisions:["edit","approve","reject"],
-                    description:'当智能体需要发送邮件时，需要用户确认是否发送，以及是否需要编辑邮件内容'
+                    allowedDecisions: ["edit", "approve", "reject"],
+                    description: '当智能体需要发送邮件时，需要用户确认是否发送，以及是否需要编辑邮件内容'
                 }
             }
         })
@@ -65,7 +71,7 @@ async function runAgentWithApprovals() {
     const config = { configurable: { thread_id: "user_123" } };
 
     // 第一步：运行智能体直到需要批准
-    console.log("智能体开始执行任务...");
+    console.log("Starting the agent to run...");
     const result = await agent.invoke(
         {
             messages: [{
@@ -86,7 +92,7 @@ async function runAgentWithApprovals() {
 
 
         if (!interrupt || !interrupt.actionRequests) {
-            console.log("没有找到 actionRequests");
+            console.log("The agent has not found any actionRequests");
             return;
         }
 
@@ -94,31 +100,64 @@ async function runAgentWithApprovals() {
 
         for (const action of actionRequests) {
             if (action.name === "sendEmail") {
+                const decision = await readChatInstance.readlineChatOnce(
+                    `是否发送邮件给 ${action.args.to} ？(edit/approve/reject): `
+                );
+                if (decision === 'reject') {
+                    decisions.push({
+                        type: decision,
+                        message: 'user rejected the email to send'
+                    })
+                } else if (decision === 'edit') {
+                    console.log(`\n原始邮件内容: ${action.args.body}`);
 
-                decisions.push({
-                    type: "edit",
-                    editedAction: {
-                        name: "sendEmail",  // Keep original tool name
-                        args: {
-                            ...action.args,
-                            to: "gq19960624@2925.com",
-                            body:'这是一篇被更改过的文章，hi！！！！'
+                    const editChoice = await readChatInstance.readlineChatOnce(
+                        `编辑哪个字段？(to/subject/body): `
+                    );
+
+                    let mergedArgs = { ...action.args };
+
+                    if (editChoice === 'to') {
+                        const newTo = await readChatInstance.readlineChatOnce(`新的收件人: `);
+                        mergedArgs.to = newTo.trim();
+                    }
+                    else if (editChoice === 'subject') {
+                        const newSubject = await readChatInstance.readlineChatOnce(`新的主题: `);
+                        mergedArgs.subject = newSubject.trim();
+                    }
+                    else if (editChoice === 'body') {
+                        // ✅ 只在这里用 LLM 优化内容
+                        const userEdit = await readChatInstance.readlineChatOnce(`你想怎样改进这个内容？(或直接粘贴新内容): `);
+                      mergedArgs.body = userEdit;
+                    }
+
+                    decisions.push({
+                        type: 'edit',
+                        editedAction: {
+                            name: "sendEmail",
+                            args: mergedArgs,
                         },
-                    },
-                });
+                    });
+                } else if (decision === 'approve') {
+                    console.log("The user approved the email to send");
+                    decisions.push({
+                        type: decision,
+                        message: 'The user approved the email to send'
+                    })
+                }
             }
         }
-        console.log("用户决策:", decisions);
+        console.log("user's decisions:", decisions);
         try {
-             await agent.invoke(
+            await agent.invoke(
                 new Command({
                     resume: { decisions },  // ✅ 必须是这个格式
                 }),
                 config  // ✅ 必须是同一个 thread_id
             );
-            console.log("智能体执行任务完毕...");
+            console.log("The agent has completed the task....");
         } catch (error) {
-            console.error("恢复执行失败:", error);
+            console.error("The agent failed to complete the task:", error);
             throw error;
         }
     }
