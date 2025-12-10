@@ -67,8 +67,16 @@ export function createAgentFn(option = {}) {
         responseFormat,
         middleWare = []
     } = option;
-    if (responseFormat && typeof responseFormat !== "object") {
-        throw new Error('please use  object to format responseFormat')
+    if ((responseFormat && typeof responseFormat !== "object") ||
+        (typeof responseFormat === "object" &&
+            Object.keys(responseFormat).length === 0)) {
+        throw new Error(`
+            please use  object to   format responseFormat, for Example
+            responseFormat:{
+                question: z.string().describe("The customer's question"),
+                answer: z.string().describe("The assistant's answer"),
+            }
+        `)
     }
     const checkpointer = new MemorySaver();
     const agent = createAgent({
