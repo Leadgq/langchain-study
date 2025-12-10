@@ -1,7 +1,5 @@
 import { tool, humanInTheLoopMiddleware } from "langchain"
-import { StructuredOutputParser } from '@langchain/core/output_parsers';
-import { createAgentFn, getModel, readChat } from "../model/index.js"
-import { PromptTemplate } from "@langchain/core/prompts";
+import { createAgentFn, readChat } from "../model/index.js"
 import z from "zod"
 import { Command } from "@langchain/langgraph";
 import nodemailer from 'nodemailer';
@@ -9,7 +7,6 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const model = getModel()
 const readChatInstance = new readChat()
 
 export async function sendMail({ to, subject, text, html }) {
