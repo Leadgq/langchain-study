@@ -50,7 +50,10 @@ const agent = createAgentFn({
     middleWare: [
         humanInTheLoopMiddleware({
             interruptOn: {
-                sendEmail: true
+                sendEmail: {
+                    allowedDecisions:["edit","approve","reject"],
+                    description:'当智能体需要发送邮件时，需要用户确认是否发送，以及是否需要编辑邮件内容'
+                }
             }
         })
     ]
